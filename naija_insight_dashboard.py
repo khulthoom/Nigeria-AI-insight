@@ -64,7 +64,7 @@ elif page == "🤖 Ask AI":
         prompt = context + "\nUser question: " + user_input
         try:
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model= 'mistralai/mistralial-7b-instruct',
                 messages=[{"role": "user", "content": prompt}]
             )
             answer = response.choices[0].message.content
