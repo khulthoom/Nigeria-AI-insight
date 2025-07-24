@@ -64,6 +64,15 @@ elif page == "🤖 Ask AI":
        elif selected == "Ask Insight":
     st.header("Ask Insight (Offline Assistant 🤖)")
     st.markdown("Ask about electricity, transportation, or market prices in Nigeria.")
+    prompt = f"""
+You are a data assistant helping users understand Nigerian trends.
+
+Context:
+{context}
+
+User Question: {user_input}
+"""
+
 
     user_input = st.text_input("Ask me anything:")
 
