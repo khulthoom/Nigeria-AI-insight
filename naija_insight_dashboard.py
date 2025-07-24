@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -11,13 +10,16 @@ transport_df = pd.read_csv("transport_delays.csv")
 education_df = pd.read_csv("education_access.csv")
 sentiment_df = pd.read_csv("social_sentiment.csv")
 
+# Streamlit config
 st.set_page_config(page_title="Naija Insight Solutions", layout="wide")
 st.title("🇳🇬 Naija Insight Solutions")
 st.markdown("AI-powered data insights for Nigerian living — from power to prices and more.")
 
+# Sidebar navigation
 st.sidebar.header("Navigation")
 page = st.sidebar.radio("Go to", ["⚡ Power Supply", "🛒 Market Prices", "🚗 Transportation", "🎓 Education", "💬 Sentiment", "🤖 Ask AI"])
 
+# Pages
 if page == "⚡ Power Supply":
     st.header("Power Supply Insights")
     fig = px.line(power_df, x="Month", y="Average_Supply_Hours", color="State", title="Average Power Supply (Hours per Day)")
@@ -51,11 +53,12 @@ elif page == "🤖 Ask AI":
     st.header("Ask Naija Insight AI 🤖")
     st.markdown("**Example:** *Where is fuel cheapest in Nigeria?*")
 
+    # 🔐 Load API key securely
     openai.api_key = st.secrets["openai_api_key"]
 
     user_input = st.text_input("Ask a question about the data:")
     if user_input:
-        # Create context from dataset summaries
+        # Create data context
         context = f"""
         Power Supply: {power_df.groupby('State')['Average_Supply_Hours'].mean().to_dict()}
         Market Prices: {price_df.groupby('Product')['Current_Price_NGN'].mean().to_dict()}
@@ -64,9 +67,8 @@ elif page == "🤖 Ask AI":
         Sentiment: {sentiment_df.groupby('Topic')['Sentiment_Score'].mean().to_dict()}
         """
 
-        # Construct prompt
         prompt = f"""
-        You are a Nigerian data insight assistant. Use the data below to answer user questions clearly and briefly.
+        You are a Nigerian data assistant. Use the data below to answer the user's question clearly and concisely.
 
         {context}
 
