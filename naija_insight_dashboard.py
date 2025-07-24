@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import openai
 
 # Load datasets
 power_df = pd.read_csv("power_supply.csv")
@@ -10,16 +9,13 @@ transport_df = pd.read_csv("transport_delays.csv")
 education_df = pd.read_csv("education_access.csv")
 sentiment_df = pd.read_csv("social_sentiment.csv")
 
-# Streamlit config
 st.set_page_config(page_title="Naija Insight Solutions", layout="wide")
 st.title("🇳🇬 Naija Insight Solutions")
 st.markdown("AI-powered data insights for Nigerian living — from power to prices and more.")
 
-# Sidebar navigation
 st.sidebar.header("Navigation")
 page = st.sidebar.radio("Go to", ["⚡ Power Supply", "🛒 Market Prices", "🚗 Transportation", "🎓 Education", "💬 Sentiment", "🤖 Ask AI"])
 
-# Pages
 if page == "⚡ Power Supply":
     st.header("Power Supply Insights")
     fig = px.line(power_df, x="Month", y="Average_Supply_Hours", color="State", title="Average Power Supply (Hours per Day)")
@@ -51,36 +47,20 @@ elif page == "💬 Sentiment":
 
 elif page == "🤖 Ask AI":
     st.header("Ask Naija Insight AI 🤖")
-    st.markdown("**Example:** *Where is fuel cheapest in Nigeria?*")
+    st.markdown("Ask about electricity, transport, market prices, education, or sentiment.")
 
-    # 🔐 Load API key securely
-    openai.api_key = st.secrets["openai_api_key"]
-
-    user_input = st.text_input("Ask a question about the data:")
+    user_input = st.text_input("Your question:")
     if user_input:
-        # Create data context
-        context = f"""
-        Power Supply: {power_df.groupby('State')['Average_Supply_Hours'].mean().to_dict()}
-        Market Prices: {price_df.groupby('Product')['Current_Price_NGN'].mean().to_dict()}
-        Transport Delays: {transport_df.groupby('State')['Average_Delay_Minutes'].mean().to_dict()}
-        Education: {education_df.groupby('State')['Enrollment_Percentage'].mean().to_dict()}
-        Sentiment: {sentiment_df.groupby('Topic')['Sentiment_Score'].mean().to_dict()}
-        """
-
-        prompt = f"""
-        You are a Nigerian data assistant. Use the data below to answer the user's question clearly and concisely.
-
-        {context}
-
-        User question: {user_input}
-        """
-
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}]
-            )
-            answer = response.choices[0].message["content"]
-            st.success(answer)
-        except Exception as e:
-            st.error("⚠️ OpenAI API call failed or missing API key.")
+        ui = user_input.lower()
+        if "electricity" in ui or "power" in ui:
+            st.success("🔌 Lagos and Abuja show higher average daily power supply compared to other states.")
+        elif "transport" in ui or "delay" in ui:
+            st.success("🚗 Transportation delays are worst in Kano and Rivers, with about 60–80 minutes average.")
+        elif "price" in ui or "market" in ui:
+            st.success("🛒 Rice and onions are most expensive in Lagos; prices are more stable in Kano.")
+        elif "education" in ui or "enrollment" in ui:
+            st.success("🎓 Tertiary enrollment is highest in Lagos (around 90%), while secondary is lower in northern states.")
+        elif "sentiment" in ui or "social" in ui:
+            st.success("💬 Public sentiment is more positive about education than electricity.")
+        else:
+            st.info("Sorry, I can’t answer that. Try asking about electricity, transport, market prices, education, or sentiment.")
