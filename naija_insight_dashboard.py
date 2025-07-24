@@ -52,8 +52,10 @@ elif page == "🤖 Ask AI":
     st.markdown("**Example:** *Where is fuel cheapest in Nigeria?*")
 
     openai.api_key = st.secrets["openai_api_key"]
+
     user_input = st.text_input("Ask a question about the data:")
     if user_input:
+        # Create context from dataset summaries
         context = f"""
         Power Supply: {power_df.groupby('State')['Average_Supply_Hours'].mean().to_dict()}
         Market Prices: {price_df.groupby('Product')['Current_Price_NGN'].mean().to_dict()}
@@ -61,28 +63,22 @@ elif page == "🤖 Ask AI":
         Education: {education_df.groupby('State')['Enrollment_Percentage'].mean().to_dict()}
         Sentiment: {sentiment_df.groupby('Topic')['Sentiment_Score'].mean().to_dict()}
         """
-       elif selected == "Ask Insight":
-    st.header("Ask Insight (Offline Assistant 🤖)")
-    st.markdown("Ask about electricity, transportation, or market prices in Nigeria.")
-    prompt = context + "\nUser question: " + user_input
 
-try:
+        # Construct prompt
+        prompt = f"""
+        You are a Nigerian data insight assistant. Use the data below to answer user questions clearly and briefly.
 
+        {context}
 
-    user_input = st.text_input("Ask me anything:")
+        User question: {user_input}
+        """
 
-    if user_input:
-        user_input_lower = user_input.lower()
-
-        if "electricity" in user_input_lower or "power" in user_input_lower:
-            st.success("Electricity supply data shows variability across states. Lagos had the highest consistent supply, while Yobe experienced more outages.")
-
-        elif "transport" in user_input_lower or "road" in user_input_lower:
-            st.success("Transport costs have been increasing steadily, especially in the North-East zone due to fuel price hikes.")
-
-        elif "market" in user_input_lower or "price" in user_input_lower:
-            st.success("Market prices for food items like rice and garri are highest in Abuja and Lagos. Kano has the most stable prices overall.")
-
-        else:
-            st.info("I couldn’t find an answer to that. Try asking about electricity, transportation, or market prices.")
-
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            answer = response.choices[0].message["content"]
+            st.success(answer)
+        except Exception as e:
+            st.error("⚠️ OpenAI API call failed or missing API key.")
