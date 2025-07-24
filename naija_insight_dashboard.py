@@ -63,10 +63,10 @@ elif page == "🤖 Ask AI":
         """
         prompt = context + "\nUser question: " + user_input
         try:
-            response = openai.ChatCompletion.create(
-                model= 'mistralai/mistralial-7b-instruct',
+            response = openai.chat.completions.create({
+                                model= 'mistralai/mistralial-7b-instruct',
                 messages=[{"role": "user", "content": prompt}]
-            )
+)
             answer = response.choices[0].message.content
             st.success(answer)
         except Exception as e:
