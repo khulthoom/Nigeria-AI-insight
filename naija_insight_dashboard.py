@@ -62,13 +62,15 @@ elif page == "🤖 Ask AI":
         Sentiment: {sentiment_df.groupby('Topic')['Sentiment_Score'].mean().to_dict()}
         """
         prompt = context + "\nUser question: " + user_input
-        try:
-            response = openai.chat.completions.create(
-                model= 'mistralai/mistralial-7b-instruct',
-                messages=[{"role": "user", "content": prompt}]
-                             
-)
-            answer = response.choices[0].message.content
-            st.success(answer)
-        except Exception as e:
-            st.error("OpenAI API call failed or missing API key.")
+
+try:
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    answer = response.choices[0].message['content']
+    st.success(answer)
+
+except Exception as e:
+    st.error("OpenAI API call failed or missing API key.")
+
